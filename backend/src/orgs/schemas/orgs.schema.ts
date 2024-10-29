@@ -5,6 +5,8 @@ import { Document, HydratedDocument } from 'mongoose';
 export class Organisations extends Document {
     @Prop()
     name: string;
+    @Prop()
+    label: string;
 }
 
 export type OrganisationDocument = HydratedDocument<Organisations>;
