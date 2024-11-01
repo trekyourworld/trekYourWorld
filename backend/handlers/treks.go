@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"time"
 	"trekyourworld/db"
 	"trekyourworld/response"
 
@@ -25,6 +24,7 @@ type TrekData struct {
 	Cost       string   `json:"cost" bson:"cost"`
 	Difficulty []string `json:"difficulty" bson:"difficulty"`
 	Location   string   `json:"location" bson:"location"`
+	Distance   string   `json:"distance" bson:"distance"`
 	Tags       []string `json:"tags" bson:"tags"`
 }
 
@@ -41,8 +41,7 @@ func FindAllTreks(ctx server.Context) {
 		response.Error(ctx.HttpResWriter(), http.StatusInternalServerError, "Failed to get database collection")
 	}
 
-	contxt, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	contxt := context.Background()
 
 	pipeline := mongo.Pipeline{
 		{bson.E{Key: "$unwind", Value: "$treks"}},
@@ -81,7 +80,6 @@ func FindAllTreks(ctx server.Context) {
 // search trek by name
 func SearchTrek(ctx server.Context) {
 	trekName := ctx.GetRequest().URL.Query().Get("trekName")
-	logger.Info(trekName)
 	if trekName == "" {
 		findAllTreksData(ctx)
 	} else {
@@ -95,8 +93,7 @@ func findAllTreksData(ctx server.Context) {
 		response.Error(ctx.HttpResWriter(), http.StatusInternalServerError, "Failed to get database collection")
 	}
 
-	contxt, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	contxt := context.Background()
 
 	pipeline := mongo.Pipeline{
 		{bson.E{Key: "$unwind", Value: "$treks"}},
@@ -144,8 +141,7 @@ func findTrekByName(ctx server.Context, trekName string) {
 		response.Error(ctx.HttpResWriter(), http.StatusInternalServerError, "Failed to get database collection")
 	}
 
-	contxt, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	contxt := context.Background()
 
 	regexPattern := fmt.Sprintf(".*%s.*", regexp.QuoteMeta(trekName))
 	regex := bson.D{{Key: "$regex", Value: regexPattern}}
@@ -195,14 +191,12 @@ func findTrekByName(ctx server.Context, trekName string) {
 }
 
 func FilterTreks(ctx server.Context) {
-	logger.Info("inside iflter treks")
 	collection, err := db.GetCollection("treks_information")
 	if err != nil {
 		response.Error(ctx.HttpResWriter(), http.StatusInternalServerError, "Failed to get database collection")
 	}
 
-	contxt, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	contxt := context.Background()
 
 	var trekFilter TrekFilters
 	if err := json.NewDecoder(ctx.GetRequest().Body).Decode(&trekFilter); err != nil {

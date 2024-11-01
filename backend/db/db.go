@@ -5,7 +5,6 @@ import (
 	"errors"
 	"os"
 	"sync"
-	"time"
 	"trekyourworld/env"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -43,8 +42,7 @@ func Init() error {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+		ctx := context.Background()
 		if err := client.Ping(ctx, nil); err != nil {
 			initErr = err
 			return

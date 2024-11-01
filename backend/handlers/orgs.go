@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"time"
 	"trekyourworld/db"
 	"trekyourworld/response"
 
@@ -25,8 +24,7 @@ func FindAllOrganisations(ctx server.Context) {
 
 	filter := bson.D{}
 
-	contxt, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	contxt := context.Background()
 
 	cur, err := collection.Find(contxt, filter)
 	if err != nil {
